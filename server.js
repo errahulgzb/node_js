@@ -15,7 +15,7 @@ app.get("/index.htm",function(req,res){
 
 app.get("/formfile.htm",function(req,res){
 		res.sendFile(__dirname+"/"+"formfile.htm");
-		//res.render('formfile.htm');
+		//res.render('./formfile.htm');
 });
 
 app.post("/process_post",urlencodedParser,function(req,res){
@@ -28,9 +28,30 @@ app.post("/process_post",urlencodedParser,function(req,res){
 });
 
 app.post("/file_upload",function(req,res){
-	console.log(req.file.name);
-    console.log(req.file.path);
-    console.log(req.file.type);
+	var storage = multer.diskStorage({
+                destination: function (req, file, callback) {
+                callback(null, './uploads');
+                },
+                filename: function (req, file, callback) {
+                console.log(file.fieldname);
+                callback(null, file.fieldname + '-' + Date.now()+".png");
+                }
+            });
+  var upload = multer({ storage: storage }).single('file');
+  upload(req, res, function (err) 
+    {
+        console.log(req.file);
+        console.log(req.body);
+        if (err) 
+        {
+            console.log("Photo API ERROR: "+err);
+            return res.end("Error uploading file.");
+        }
+        console.log("SUCCESS");
+       
+       
+       // res.json("File is uploaded");
+    });
 });
 
 var server = app.listen(8081, function () {
